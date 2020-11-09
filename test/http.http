@@ -1,0 +1,30 @@
+GET http://127.0.0.1:9999/
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.body === "Welcome to our web-site", "wrong response body")
+});
+%}
+
+###
+GET http://127.0.0.1:9999/about
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.body === "About Golang Academy", "wrong response body")
+});
+%}
+
+###
+GET http://127.0.0.1:9999/payments?id=1
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.assert(response.body === "boolshit", "wrong response body")
+});
+%}
+
+###
