@@ -17,8 +17,7 @@ type HandlerFunc func(req *Request)
 var (
 	//ErrBadRequest ...
 	ErrBadRequest = errors.New("Bad Request")
-	//ErrMethodNotAlowed ..
-	ErrMethodNotAlowed = errors.New("Method not Alowed")
+
 	//ErrHTTPVersionNotValid ..
 	ErrHTTPVersionNotValid = errors.New("Http version not valid")
 )
