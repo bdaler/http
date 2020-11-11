@@ -21,7 +21,7 @@ func NewServer(mux *http.ServeMux, bannersSvc *banners.Service) *Server {
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	log.Println("serveHTTP method")
 	s.mux.ServeHTTP(writer, request)
-	log.Println("request: ", request.URL.Query())
+	log.Println("request: ", request)
 }
 
 func (s *Server) Init() {
