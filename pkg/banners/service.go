@@ -3,7 +3,6 @@ package banners
 import (
 	"context"
 	"errors"
-	"sort"
 	"sync"
 )
 
@@ -42,21 +41,19 @@ func (s *Service) ByID(ctx context.Context, id int64) (*Banner, error) {
 	return nil, errors.New("banner not found")
 }
 
+var starID int64 = 0
+
 func (s *Service) Save(ctx context.Context, item *Banner) (*Banner, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if item.ID == 0 {
-		sort.Slice(s.items[:], func(i, j int) bool {
-			return s.items[i].ID > s.items[j].ID
-		})
-		item.ID = s.items[0].ID + 1
+		starID++
+		item.ID = starID
 		s.items = append(s.items, item)
 		return item, nil
-	} else {
-		for _, banner := range s.items {
-			if banner.ID == item.ID {
-				break
-			}
+	}
+	for _, banner := range s.items {
+		if banner.ID == item.ID {
 			banner = &Banner{
 				Title:   item.Title,
 				Content: item.Content,
@@ -66,6 +63,7 @@ func (s *Service) Save(ctx context.Context, item *Banner) (*Banner, error) {
 			return banner, nil
 		}
 	}
+
 	return nil, errors.New("banner not found")
 }
 
