@@ -33,10 +33,10 @@ func (s *Server) Init() {
 
 func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.Request) {
 	items, err := s.bannersSvc.All(request.Context())
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	data, err := json.Marshal(items)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
@@ -44,13 +44,13 @@ func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.R
 func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	badRequestError(writer, err)
+	requestError(writer, err, http.StatusBadRequest)
 
 	item, err := s.bannersSvc.ByID(request.Context(), id)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	data, err := json.Marshal(item)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
@@ -58,7 +58,7 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	badRequestError(writer, err)
+	requestError(writer, err, http.StatusBadRequest)
 
 	banner := &banners.Banner{
 		ID:      id,
@@ -69,10 +69,10 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 	}
 
 	item, err := s.bannersSvc.Save(request.Context(), banner)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	data, err := json.Marshal(item)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
@@ -80,13 +80,13 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 func (s *Server) handleRemoveById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	badRequestError(writer, err)
+	requestError(writer, err, http.StatusBadRequest)
 
 	item, err := s.bannersSvc.RemoveByID(request.Context(), id)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	data, err := json.Marshal(item)
-	internalServerError(writer, err)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
@@ -99,18 +99,10 @@ func jsonResponse(writer http.ResponseWriter, data []byte) {
 	}
 }
 
-func badRequestError(writer http.ResponseWriter, err error) {
+func requestError(writer http.ResponseWriter, err error, status int) {
 	if err != nil {
 		log.Println(err)
-		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-}
-
-func internalServerError(writer http.ResponseWriter, err error) {
-	if err != nil {
-		log.Println(err)
-		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(writer, http.StatusText(status), status)
 		return
 	}
 }
