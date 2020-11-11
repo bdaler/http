@@ -33,10 +33,10 @@ func (s *Server) Init() {
 
 func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.Request) {
 	items, err := s.bannersSvc.All(request.Context())
-	errBadRequest(writer, err)
+	internalServerError(writer, err)
 
 	data, err := json.Marshal(items)
-	errInternalServerError(writer, err)
+	internalServerError(writer, err)
 
 	jsonResponse(writer, data)
 }
@@ -44,13 +44,13 @@ func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.R
 func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	errBadRequest(writer, err)
+	badRequestError(writer, err)
 
 	item, err := s.bannersSvc.ByID(request.Context(), id)
-	errBadRequest(writer, err)
+	internalServerError(writer, err)
 
 	data, err := json.Marshal(item)
-	errInternalServerError(writer, err)
+	internalServerError(writer, err)
 
 	jsonResponse(writer, data)
 }
@@ -58,7 +58,7 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	errBadRequest(writer, err)
+	badRequestError(writer, err)
 
 	banner := &banners.Banner{
 		ID:      id,
@@ -69,10 +69,10 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 	}
 
 	item, err := s.bannersSvc.Save(request.Context(), banner)
-	errInternalServerError(writer, err)
+	internalServerError(writer, err)
 
 	data, err := json.Marshal(item)
-	errInternalServerError(writer, err)
+	internalServerError(writer, err)
 
 	jsonResponse(writer, data)
 }
@@ -80,13 +80,13 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 func (s *Server) handleRemoveById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	errBadRequest(writer, err)
+	badRequestError(writer, err)
 
 	item, err := s.bannersSvc.RemoveByID(request.Context(), id)
-	errInternalServerError(writer, err)
+	internalServerError(writer, err)
 
 	data, err := json.Marshal(item)
-	errInternalServerError(writer, err)
+	internalServerError(writer, err)
 
 	jsonResponse(writer, data)
 }
@@ -99,7 +99,7 @@ func jsonResponse(writer http.ResponseWriter, data []byte) {
 	}
 }
 
-func errBadRequest(writer http.ResponseWriter, err error) {
+func badRequestError(writer http.ResponseWriter, err error) {
 	if err != nil {
 		log.Println(err)
 		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -107,7 +107,7 @@ func errBadRequest(writer http.ResponseWriter, err error) {
 	}
 }
 
-func errInternalServerError(writer http.ResponseWriter, err error) {
+func internalServerError(writer http.ResponseWriter, err error) {
 	if err != nil {
 		log.Println(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
