@@ -38,7 +38,7 @@ func (s *Service) ByID(ctx context.Context, id int64) (*Banner, error) {
 			return banner, nil
 		}
 	}
-	return nil, errors.New("banner not found")
+	return nil, errors.New("banner by id not found")
 }
 
 var starID int64 = 0
@@ -64,7 +64,7 @@ func (s *Service) Save(ctx context.Context, item *Banner) (*Banner, error) {
 		}
 	}
 
-	return nil, errors.New("banner not found")
+	return nil, errors.New("banner save error")
 }
 
 func (s *Service) RemoveByID(ctx context.Context, id int64) (*Banner, error) {
@@ -76,5 +76,5 @@ func (s *Service) RemoveByID(ctx context.Context, id int64) (*Banner, error) {
 			return banner, nil
 		}
 	}
-	return nil, errors.New("banner not found")
+	return nil, errors.New("banner remove by id not found")
 }
