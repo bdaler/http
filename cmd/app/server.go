@@ -33,7 +33,7 @@ func (s *Server) Init() {
 
 func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.Request) {
 	items, err := s.bannersSvc.All(request.Context())
-	errInternalServerError(writer, err)
+	errBadRequest(writer, err)
 
 	data, err := json.Marshal(items)
 	errInternalServerError(writer, err)
