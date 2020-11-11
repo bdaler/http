@@ -21,6 +21,7 @@ func NewServer(mux *http.ServeMux, bannersSvc *banners.Service) *Server {
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	log.Println("serveHTTP method")
 	s.mux.ServeHTTP(writer, request)
+	log.Println("request: ", request.URL.Query())
 }
 
 func (s *Server) Init() {
@@ -79,11 +80,17 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 	}
 
 	item, err := s.bannersSvc.Save(request.Context(), banner)
-	requestError(writer, err, http.StatusInternalServerError)
-
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 	data, err := json.Marshal(item)
-	requestError(writer, err, http.StatusInternalServerError)
-
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 	jsonResponse(writer, data)
 }
 
