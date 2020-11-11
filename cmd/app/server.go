@@ -50,7 +50,7 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 	requestError(writer, err, http.StatusBadRequest)
 
 	data, err := json.Marshal(item)
-	requestError(writer, err, http.StatusBadRequest)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
