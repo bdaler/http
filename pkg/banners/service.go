@@ -55,7 +55,7 @@ func (s *Service) Save(ctx context.Context, item *Banner) (*Banner, error) {
 	for i, banner := range s.items {
 		if banner.ID == item.ID {
 			s.items[i] = item
-			return banner, nil
+			return item, nil
 		}
 	}
 
