@@ -44,13 +44,23 @@ func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.R
 func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	requestError(writer, err, http.StatusInternalServerError)
+	requestError(writer, err, http.StatusBadRequest)
 
 	item, err := s.bannersSvc.ByID(request.Context(), id)
-	requestError(writer, err, http.StatusInternalServerError)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	//requestError(writer, err, http.StatusInternalServerError)
 
 	data, err := json.Marshal(item)
-	requestError(writer, err, http.StatusInternalServerError)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	//requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
@@ -105,4 +115,7 @@ func requestError(writer http.ResponseWriter, err error, status int) {
 		http.Error(writer, http.StatusText(status), status)
 		return
 	}
+}
+func testError(writer http.ResponseWriter, status int) {
+	http.Error(writer, http.StatusText(status), status)
 }
