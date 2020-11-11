@@ -44,7 +44,7 @@ func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.R
 func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	requestError(writer, err, http.StatusBadRequest)
+	requestError(writer, err, http.StatusInternalServerError)
 
 	item, err := s.bannersSvc.ByID(request.Context(), id)
 	requestError(writer, err, http.StatusInternalServerError)
