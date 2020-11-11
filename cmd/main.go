@@ -10,18 +10,18 @@ import (
 )
 
 func main() {
-	if err := execute(); err != nil {
+	if err := execute(server.HOST, server.PORT); err != nil {
 		os.Exit(1)
 	}
 }
 
-func execute() (err error) {
+func execute(server, port string) (err error) {
 	mux := http.NewServeMux()
 	bannersSvc := banners.NewService()
 	serverHandler := app.NewServer(mux, bannersSvc)
 
 	srv := &http.Server{
-		Addr:    net.JoinHostPort(server.HOST, server.PORT),
+		Addr:    net.JoinHostPort(server, port),
 		Handler: serverHandler,
 	}
 	return srv.ListenAndServe()
