@@ -19,10 +19,12 @@ func NewServer(mux *http.ServeMux, bannersSvc *banners.Service) *Server {
 }
 
 func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	log.Println("serveHTTP method")
 	s.mux.ServeHTTP(writer, request)
 }
 
 func (s *Server) Init() {
+	log.Println("Init method")
 	s.mux.HandleFunc("/banners.getAll", s.handleGetAllBanners)
 	s.mux.HandleFunc("/banners.getById", s.handleGetBannerById)
 	s.mux.HandleFunc("/banners.save", s.handleSaveBanner)
@@ -31,6 +33,7 @@ func (s *Server) Init() {
 
 func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.Request) {
 	items, err := s.bannersSvc.All(request.Context())
+	log.Println("items: ", items)
 	data, err := json.Marshal(items)
 	errInternalServerError(writer, err)
 

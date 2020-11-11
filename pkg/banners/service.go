@@ -3,6 +3,7 @@ package banners
 import (
 	"context"
 	"errors"
+	"log"
 	"sort"
 	"sync"
 )
@@ -26,6 +27,7 @@ func NewService() *Service {
 }
 
 func (s *Service) All(ctx context.Context) ([]*Banner, error) {
+	log.Println("banner service All method")
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if len(s.items) <= 0 {
