@@ -38,11 +38,7 @@ func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.R
 	data, err := json.Marshal(items)
 	errInternalServerError(writer, err)
 
-	writer.Header().Set("Content-Type", "application/json")
-	_, err = writer.Write(data)
-	if err != nil {
-		log.Println("Error write response: ", err)
-	}
+	jsonResponse(writer, data)
 }
 
 func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.Request) {
@@ -51,16 +47,12 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 	errBadRequest(writer, err)
 
 	item, err := s.bannersSvc.ByID(request.Context(), id)
-	errInternalServerError(writer, err)
+	errBadRequest(writer, err)
 
 	data, err := json.Marshal(item)
 	errInternalServerError(writer, err)
 
-	writer.Header().Set("Content-Type", "application/json")
-	_, err = writer.Write(data)
-	if err != nil {
-		log.Println("Error write response: ", err)
-	}
+	jsonResponse(writer, data)
 }
 
 func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Request) {
@@ -82,11 +74,7 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 	data, err := json.Marshal(item)
 	errInternalServerError(writer, err)
 
-	writer.Header().Set("Content-Type", "application/json")
-	_, err = writer.Write(data)
-	if err != nil {
-		log.Println("Error write response: ", err)
-	}
+	jsonResponse(writer, data)
 }
 
 func (s *Server) handleRemoveById(writer http.ResponseWriter, request *http.Request) {
@@ -100,8 +88,12 @@ func (s *Server) handleRemoveById(writer http.ResponseWriter, request *http.Requ
 	data, err := json.Marshal(item)
 	errInternalServerError(writer, err)
 
+	jsonResponse(writer, data)
+}
+
+func jsonResponse(writer http.ResponseWriter, data []byte) {
 	writer.Header().Set("Content-Type", "application/json")
-	_, err = writer.Write(data)
+	_, err := writer.Write(data)
 	if err != nil {
 		log.Println("Error write response: ", err)
 	}
