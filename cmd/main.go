@@ -1,22 +1,29 @@
 package main
 
 import (
+	"github.com/bdaler/http/cmd/app"
+	"github.com/bdaler/http/pkg/banners"
 	"github.com/bdaler/http/pkg/server"
 	"net"
+	"net/http"
 	"os"
 )
 
 func main() {
-	if err := execute(server.HOST, server.PORT); err != nil {
+	if err := execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-func execute(host, port string) (err error) {
-	srv := server.NewServer(net.JoinHostPort(host, port))
-	srv.Register("/", srv.RouteHandler("Welcome to our web-site"))
-	srv.Register("/about", srv.RouteHandler("About Golang Academy"))
-	srv.Register("/payments", srv.RouteHandler("boolshit"))
-	srv.Register("/payments{id}", srv.RouteHandler("boolshit2"))
-	return srv.Start()
+func execute() (err error) {
+	mux := http.NewServeMux()
+	bannersSvc := banners.NewService()
+	serverHandler := app.NewServer(mux, bannersSvc)
+
+	srv := &http.Server{
+		Addr:    net.JoinHostPort(server.HOST, server.PORT),
+		Handler: serverHandler,
+	}
+	return srv.ListenAndServe()
+
 }
