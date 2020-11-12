@@ -32,10 +32,18 @@ func (s *Server) Init() {
 
 func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.Request) {
 	items, err := s.bannersSvc.All(request.Context())
-	requestError(writer, err, http.StatusInternalServerError)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	data, err := json.Marshal(items)
-	requestError(writer, err, http.StatusInternalServerError)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	jsonResponse(writer, data)
 }
@@ -43,7 +51,11 @@ func (s *Server) handleGetAllBanners(writer http.ResponseWriter, request *http.R
 func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	requestError(writer, err, http.StatusBadRequest)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	item, err := s.bannersSvc.ByID(request.Context(), id)
 	if err != nil {
@@ -51,7 +63,6 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	//requestError(writer, err, http.StatusInternalServerError)
 
 	data, err := json.Marshal(item)
 	if err != nil {
@@ -59,7 +70,6 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	//requestError(writer, err, http.StatusInternalServerError)
 
 	jsonResponse(writer, data)
 }
@@ -67,7 +77,11 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	requestError(writer, err, http.StatusBadRequest)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	banner := &banners.Banner{
 		ID:      id,
@@ -83,25 +97,39 @@ func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Requ
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	data, err := json.Marshal(item)
 	if err != nil {
 		log.Println(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	jsonResponse(writer, data)
 }
 
 func (s *Server) handleRemoveById(writer http.ResponseWriter, request *http.Request) {
 	idParam := request.URL.Query().Get("id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
-	requestError(writer, err, http.StatusBadRequest)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	item, err := s.bannersSvc.RemoveByID(request.Context(), id)
-	requestError(writer, err, http.StatusInternalServerError)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	data, err := json.Marshal(item)
-	requestError(writer, err, http.StatusInternalServerError)
+	if err != nil {
+		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	jsonResponse(writer, data)
 }
@@ -111,13 +139,5 @@ func jsonResponse(writer http.ResponseWriter, data []byte) {
 	_, err := writer.Write(data)
 	if err != nil {
 		log.Println("Error write response: ", err)
-	}
-}
-
-func requestError(writer http.ResponseWriter, err error, status int) {
-	if err != nil {
-		log.Println(err)
-		http.Error(writer, http.StatusText(status), status)
-		return
 	}
 }
