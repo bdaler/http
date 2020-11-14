@@ -2,9 +2,13 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/bdaler/http/pkg/banners"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -75,20 +79,50 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 }
 
 func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Request) {
-	idParam := request.URL.Query().Get("id")
-	id, err := strconv.ParseInt(idParam, 10, 64)
+	log.Println("requestURI: ", request.RequestURI)
+
+	err := request.ParseMultipartForm(20 * 1024 * 1024)
 	if err != nil {
-		log.Println(err)
-		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
+		log.Println(" request.ParseMultipartForm: ", err)
 	}
 
+	log.Println("request: ", request)
+	log.Println("requestRequestURI: ", request.RequestURI)
+	log.Println("request.FormValue(link):", request.FormValue("link"))
+	//idParam := request.URL.Query().Get("id")
+	//id, err := strconv.ParseInt(idParam, 10, 64)
+	//if err != nil {
+	//	log.Println(err)
+	//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	//	return
+	//}
+
+	image, handler, err := request.FormFile("image")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer image.Close()
+	fmt.Fprintf(writer, "%v", handler.Header)
+	path, er := filepath.Abs("./web/banners/")
+	if er != nil {
+		log.Println(err)
+	}
+	i, err := os.OpenFile(path+"/1.png", os.O_CREATE, 0666)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer i.Close()
+	io.Copy(i, image)
+
 	banner := &banners.Banner{
-		ID:      id,
-		Title:   request.URL.Query().Get("title"),
-		Content: request.URL.Query().Get("content"),
-		Button:  request.URL.Query().Get("button"),
-		Link:    request.URL.Query().Get("link"),
+		ID:      0,
+		Title:   request.FormValue("title"),
+		Content: request.FormValue("content"),
+		Button:  request.FormValue("button"),
+		Link:    request.FormValue("link"),
+		Image:   "1.png",
 	}
 
 	item, err := s.bannersSvc.Save(request.Context(), banner)
