@@ -2,14 +2,11 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/bdaler/http/pkg/banners"
-	"io"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type Server struct {
@@ -81,51 +78,28 @@ func (s *Server) handleGetBannerById(writer http.ResponseWriter, request *http.R
 func (s *Server) handleSaveBanner(writer http.ResponseWriter, request *http.Request) {
 	log.Println("requestURI: ", request.RequestURI)
 
-	err := request.ParseMultipartForm(20 * 1024 * 1024)
-	if err != nil {
-		log.Println(" request.ParseMultipartForm: ", err)
-	}
-
-	log.Println("request: ", request)
-	log.Println("requestRequestURI: ", request.RequestURI)
-	log.Println("request.FormValue(link):", request.FormValue("link"))
-	//idParam := request.URL.Query().Get("id")
-	//id, err := strconv.ParseInt(idParam, 10, 64)
-	//if err != nil {
-	//	log.Println(err)
-	//	http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-	//	return
-	//}
-
-	image, handler, err := request.FormFile("image")
+	idParam := request.PostFormValue("id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
 		log.Println(err)
+		http.Error(writer, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
-	defer image.Close()
-	fmt.Fprintf(writer, "%v", handler.Header)
-	path, er := filepath.Abs("./web/banners/")
-	if er != nil {
-		log.Println(err)
-	}
-	i, err := os.OpenFile(path+"/1.png", os.O_CREATE, 0666)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	defer i.Close()
-	io.Copy(i, image)
-
 	banner := &banners.Banner{
-		ID:      0,
+		ID:      id,
 		Title:   request.FormValue("title"),
 		Content: request.FormValue("content"),
 		Button:  request.FormValue("button"),
 		Link:    request.FormValue("link"),
-		Image:   "1.png",
+	}
+	image, header, err := request.FormFile("image")
+	if err == nil {
+		var name = strings.Split(header.Filename, ".")
+		//banner.Image = name[len(name)-1]
+		banner.Image = name[1]
 	}
 
-	item, err := s.bannersSvc.Save(request.Context(), banner)
+	item, err := s.bannersSvc.Save(request.Context(), banner, image)
 	if err != nil {
 		log.Println(err)
 		http.Error(writer, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
